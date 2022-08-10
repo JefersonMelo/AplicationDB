@@ -1,5 +1,6 @@
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import java.sql.*;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -8,13 +9,17 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author jef_m
+ * @author jefmelo
  */
 public class Mainly extends javax.swing.JFrame {
 
     /**
      * Creates new form Mainly
      */
+    public Connection conn = null;
+    public Statement stmt;
+    public ResultSet rs;
+
     public Mainly() {
         initComponents();
 
@@ -38,7 +43,16 @@ public class Mainly extends javax.swing.JFrame {
         txtUsuario = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         txtSenha = new javax.swing.JPasswordField();
-        abaCadastro = new javax.swing.JPanel();
+        abaConectado = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        txtSigla = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        txtNome = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtAreaDesc = new javax.swing.JTextArea();
+        btnInserir = new javax.swing.JButton();
+        btnDeletar = new javax.swing.JButton();
+        btnAtualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
@@ -82,8 +96,45 @@ public class Mainly extends javax.swing.JFrame {
 
         abas.addTab("Login", abaLogin);
 
-        abaCadastro.setLayout(null);
-        abas.addTab("Cadastro", abaCadastro);
+        abaConectado.setLayout(null);
+
+        jLabel3.setText("Sigla");
+        abaConectado.add(jLabel3);
+        jLabel3.setBounds(20, 30, 28, 16);
+        abaConectado.add(txtSigla);
+        txtSigla.setBounds(20, 50, 428, 28);
+
+        jLabel4.setText("Nome");
+        abaConectado.add(jLabel4);
+        jLabel4.setBounds(20, 100, 34, 16);
+        abaConectado.add(txtNome);
+        txtNome.setBounds(20, 120, 428, 28);
+
+        txtAreaDesc.setColumns(20);
+        txtAreaDesc.setRows(5);
+        jScrollPane1.setViewportView(txtAreaDesc);
+
+        abaConectado.add(jScrollPane1);
+        jScrollPane1.setBounds(20, 170, 428, 155);
+
+        btnInserir.setText("Inserir");
+        btnInserir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInserirActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnInserir);
+        btnInserir.setBounds(20, 330, 63, 28);
+
+        btnDeletar.setText("Deletar");
+        abaConectado.add(btnDeletar);
+        btnDeletar.setBounds(190, 330, 83, 28);
+
+        btnAtualizar.setText("Atualizar");
+        abaConectado.add(btnAtualizar);
+        btnAtualizar.setBounds(370, 330, 74, 28);
+
+        abas.addTab("Conectado", abaConectado);
 
         getContentPane().add(abas);
         abas.setBounds(0, 20, 580, 440);
@@ -103,15 +154,44 @@ public class Mainly extends javax.swing.JFrame {
         if (txtUsuario.getText().equals("adm") && senha.equals("adm")) {
             abas.setEnabledAt(1, true);
             abas.setSelectedIndex(1);
-        }else{
+        } else {
             JOptionPane.showMessageDialog(
-                    null, 
+                    null,
                     "Usuário ou Senha Não Conferem",
-                    "Mensagem", 
+                    "Mensagem",
                     JOptionPane.INFORMATION_MESSAGE
             );
         }
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void btnInserirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInserirActionPerformed
+        // TODO add your handling code here:
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/DbAplication",
+                    "root", "123");
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+            String sql = "INSERT INTO curso VALUES('"
+                    + txtSigla.getText() + "','"
+                    + txtNome.getText() + "','"
+                    + txtAreaDesc.getText() + "')";
+            JOptionPane.showMessageDialog(null, sql);
+            int i = 0;
+            i = stmt.executeUpdate(sql);//executando o comando sql
+
+            stmt.close();
+            if (i > 0) {
+                JOptionPane.showMessageDialog(null, "Curso cadastrado com sucesso!");
+                //abreTabela();
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println(e);
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }//GEN-LAST:event_btnInserirActionPerformed
 
     /**
      * @param args the command line arguments
@@ -149,14 +229,23 @@ public class Mainly extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel abaCadastro;
+    private javax.swing.JPanel abaConectado;
     private javax.swing.JPanel abaLogin;
     private javax.swing.JTabbedPane abas;
+    private javax.swing.JButton btnAtualizar;
+    private javax.swing.JButton btnDeletar;
+    private javax.swing.JButton btnInserir;
     private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea txtAreaDesc;
+    private javax.swing.JTextField txtNome;
     private javax.swing.JPasswordField txtSenha;
+    private javax.swing.JTextField txtSigla;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }
