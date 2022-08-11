@@ -1,12 +1,13 @@
 
 import javax.swing.*;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author jefmelo
@@ -24,6 +25,50 @@ public class Mainly extends javax.swing.JFrame {
         initComponents();
 
         abas.setEnabledAt(1, false);
+    }
+
+    public Statement abre_conexao() {
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/DbAplication",
+                    "root", "123");
+
+            stmt = conn.createStatement(
+                    ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE
+            );
+
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e);
+        }
+
+        return stmt;
+
+    }
+
+    public void limpa_campos() {
+        txtSigla.setText("");
+        txtNome.setText("");
+        txtAreaDesc.setText("");
+    }
+
+    public void atualiza_campos() {
+        try {
+            txtSigla.setText(rs.getString("Sigla"));
+            txtNome.setText(rs.getString("Nome"));
+            txtAreaDesc.setText(rs.getString("Descricao"));
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void abreTabela() throws SQLException {
+        String sql = "Select * from curso";
+
+        stmt = abre_conexao();
+
+        rs = stmt.executeQuery(sql);
     }
 
     /**
@@ -53,8 +98,18 @@ public class Mainly extends javax.swing.JFrame {
         btnInserir = new javax.swing.JButton();
         btnDeletar = new javax.swing.JButton();
         btnAtualizar = new javax.swing.JButton();
+        btnLimpar = new javax.swing.JButton();
+        btnAnterior = new javax.swing.JButton();
+        btnProximo = new javax.swing.JButton();
+        btnUltimo = new javax.swing.JButton();
+        btnPrimeiro = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
         getContentPane().setLayout(null);
 
         abaLogin.setLayout(null);
@@ -127,19 +182,74 @@ public class Mainly extends javax.swing.JFrame {
         btnInserir.setBounds(20, 330, 63, 28);
 
         btnDeletar.setText("Deletar");
+        btnDeletar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeletarActionPerformed(evt);
+            }
+        });
         abaConectado.add(btnDeletar);
         btnDeletar.setBounds(190, 330, 83, 28);
 
         btnAtualizar.setText("Atualizar");
+        btnAtualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtualizarActionPerformed(evt);
+            }
+        });
         abaConectado.add(btnAtualizar);
         btnAtualizar.setBounds(370, 330, 74, 28);
+
+        btnLimpar.setText("Limpar");
+        btnLimpar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLimparActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnLimpar);
+        btnLimpar.setBounds(520, 330, 67, 28);
+
+        btnAnterior.setText("< Anterior");
+        btnAnterior.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnteriorActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnAnterior);
+        btnAnterior.setBounds(180, 420, 100, 28);
+
+        btnProximo.setText("Próximo >");
+        btnProximo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProximoActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnProximo);
+        btnProximo.setBounds(360, 420, 100, 28);
+
+        btnUltimo.setText("Último >>");
+        btnUltimo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUltimoActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnUltimo);
+        btnUltimo.setBounds(500, 420, 90, 28);
+
+        btnPrimeiro.setText("<< Primeiro");
+        btnPrimeiro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrimeiroActionPerformed(evt);
+            }
+        });
+        abaConectado.add(btnPrimeiro);
+        btnPrimeiro.setBounds(10, 420, 100, 28);
 
         abas.addTab("Conectado", abaConectado);
 
         getContentPane().add(abas);
-        abas.setBounds(0, 20, 580, 440);
+        abas.setBounds(0, 20, 600, 490);
 
-        setBounds(0, 0, 594, 495);
+        setBounds(0, 0, 621, 547);
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
@@ -151,7 +261,7 @@ public class Mainly extends javax.swing.JFrame {
 
         String senha = new String(txtSenha.getPassword());
 
-        if (txtUsuario.getText().equals("adm") && senha.equals("adm")) {
+        if (txtUsuario.getText().equals("adm") && senha.equals("123")) {
             abas.setEnabledAt(1, true);
             abas.setSelectedIndex(1);
         } else {
@@ -167,31 +277,139 @@ public class Mainly extends javax.swing.JFrame {
     private void btnInserirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInserirActionPerformed
         // TODO add your handling code here:
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/DbAplication",
-                    "root", "123");
-            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-                    ResultSet.CONCUR_UPDATABLE);
-            String sql = "INSERT INTO curso VALUES('"
-                    + txtSigla.getText() + "','"
-                    + txtNome.getText() + "','"
-                    + txtAreaDesc.getText() + "')";
-            JOptionPane.showMessageDialog(null, sql);
-            int i = 0;
-            i = stmt.executeUpdate(sql);//executando o comando sql
 
+            String sql = String.format(
+                    "INSERT INTO curso VALUES('%s', '%s', '%s')",
+                    txtSigla.getText(),
+                    txtNome.getText(),
+                    txtAreaDesc.getText());
+
+            JOptionPane.showMessageDialog(null, sql);
+
+            stmt = abre_conexao();
+
+            int i;
+            i = stmt.executeUpdate(sql);//executando o comando sql
             stmt.close();
+
             if (i > 0) {
                 JOptionPane.showMessageDialog(null, "Curso cadastrado com sucesso!");
-                //abreTabela();
+                abreTabela();
             }
-        } catch (ClassNotFoundException e) {
-            System.out.println(e);
         } catch (SQLException e) {
             System.out.println(e);
         }
 
     }//GEN-LAST:event_btnInserirActionPerformed
+
+    private void btnDeletarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletarActionPerformed
+        // TODO add your handling code here:
+        try {
+            stmt = abre_conexao();
+
+            String sql = String.format("DELETE FROM curso WHERE(sigla='%s')", txtSigla.getText());
+
+            JOptionPane.showMessageDialog(null, sql);
+
+            int i;
+            i = stmt.executeUpdate(sql);
+            stmt.close();
+
+            if (i > 0) {
+                JOptionPane.showMessageDialog(null, "Curso deletado com sucesso!");
+                limpa_campos();
+                abreTabela();
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }//GEN-LAST:event_btnDeletarActionPerformed
+
+    private void btnAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarActionPerformed
+        // TODO add your handling code here:
+        try {
+            stmt = abre_conexao();
+
+            String sql = String.format(
+                    "UPDATE curso SET sigla='%s', nome='%s', descricao='%s' where sigla='%s'",
+                    txtSigla.getText(),
+                    txtNome.getText(),
+                    txtAreaDesc.getText(),
+                    txtSigla.getText());
+
+            JOptionPane.showMessageDialog(null, sql);
+            int i;
+            i = stmt.executeUpdate(sql);//executando o comando sql
+            int y;
+            stmt.close();
+            y = Statement.CLOSE_CURRENT_RESULT;
+            if (i > 0 || y > 0) {
+                JOptionPane.showMessageDialog(null, "Curso alterado com sucesso!");
+                abreTabela();
+            } else if (i > 0) {
+                stmt.close();
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }//GEN-LAST:event_btnAtualizarActionPerformed
+
+    private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
+        // TODO add your handling code here:
+        limpa_campos();
+    }//GEN-LAST:event_btnLimparActionPerformed
+
+    private void btnPrimeiroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrimeiroActionPerformed
+        // TODO add your handling code here:
+        try {
+            rs.first();
+            atualiza_campos();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_btnPrimeiroActionPerformed
+
+    private void btnAnteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnteriorActionPerformed
+        // TODO add your handling code here:
+        try {
+            rs.previous();
+            atualiza_campos();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }//GEN-LAST:event_btnAnteriorActionPerformed
+
+    private void btnProximoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProximoActionPerformed
+        // TODO add your handling code here:
+        try {
+            rs.next();
+            atualiza_campos();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_btnProximoActionPerformed
+
+    private void btnUltimoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUltimoActionPerformed
+        // TODO add your handling code here:
+        try {
+            rs.last();
+            atualiza_campos();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_btnUltimoActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        try {
+            // TODO add your handling code here:
+            abreTabela();
+        } catch (SQLException ex) {
+            Logger.getLogger(Mainly.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -221,10 +439,8 @@ public class Mainly extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Mainly().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Mainly().setVisible(true);
         });
     }
 
@@ -232,10 +448,15 @@ public class Mainly extends javax.swing.JFrame {
     private javax.swing.JPanel abaConectado;
     private javax.swing.JPanel abaLogin;
     private javax.swing.JTabbedPane abas;
+    private javax.swing.JButton btnAnterior;
     private javax.swing.JButton btnAtualizar;
     private javax.swing.JButton btnDeletar;
     private javax.swing.JButton btnInserir;
+    private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnLogin;
+    private javax.swing.JButton btnPrimeiro;
+    private javax.swing.JButton btnProximo;
+    private javax.swing.JButton btnUltimo;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
